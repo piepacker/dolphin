@@ -31,6 +31,7 @@ struct ARCode
   bool enabled = false;
   bool default_enabled = false;
   bool user_defined = false;
+  bool active = false;
 };
 
 void RunAllActive();

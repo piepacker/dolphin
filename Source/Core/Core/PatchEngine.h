@@ -38,6 +38,7 @@ struct Patch
   bool enabled = false;
   bool default_enabled = false;
   bool user_defined = false;  // False if this code is shipped with Dolphin.
+  bool active = false;
 };
 
 const char* PatchTypeAsString(PatchType type);
