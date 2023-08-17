@@ -132,6 +132,7 @@ BootParameters::GenerateFromFile(std::vector<std::string> paths,
                                  const std::optional<std::string>& savestate_path)
 {
   ASSERT(!paths.empty());
+  NOTICE_LOG(BOOT, "GenerateFromFile entrance");
 
   const bool is_drive = Common::IsCDROMDevice(paths.front());
   // Check if the file exist, we may have gotten it from a --elf command line
@@ -141,6 +142,8 @@ BootParameters::GenerateFromFile(std::vector<std::string> paths,
     PanicAlertT("The specified file \"%s\" does not exist", paths.front().c_str());
     return {};
   }
+
+    NOTICE_LOG(BOOT, "GenerateFromFile check file exists");
 
 #ifndef __LIBRETRO__
   std::string folder_path;
@@ -154,6 +157,7 @@ BootParameters::GenerateFromFile(std::vector<std::string> paths,
 #endif
     nullptr, &extension);
   std::transform(extension.begin(), extension.end(), extension.begin(), ::tolower);
+  NOTICE_LOG(BOOT, "GenerateFromFile after transform");
 
 #ifndef __LIBRETRO__
   if (extension == ".m3u" || extension == ".m3u8")
@@ -166,10 +170,13 @@ BootParameters::GenerateFromFile(std::vector<std::string> paths,
     std::transform(extension.begin(), extension.end(), extension.begin(), ::tolower);
   }
 #endif
+  NOTICE_LOG(BOOT, "GenerateFromFile after read m3u");
 
   std::string path = paths.front();
   if (paths.size() == 1)
     paths.clear();
+
+  NOTICE_LOG(BOOT, "GenerateFromFile after read m3u");
 
   static const std::unordered_set<std::string> disc_image_extensions = {
       {".gcm", ".iso", ".tgc", ".wbfs", ".ciso", ".gcz", ".wia", ".rvz", ".dol", ".elf"}};
@@ -178,12 +185,14 @@ BootParameters::GenerateFromFile(std::vector<std::string> paths,
     std::unique_ptr<DiscIO::VolumeDisc> disc = DiscIO::CreateDisc(path);
     if (disc)
     {
+      NOTICE_LOG(BOOT, "GenerateFromFile make_unique disc");
       return std::make_unique<BootParameters>(Disc{std::move(path), std::move(disc), paths},
                                               savestate_path);
     }
 
     if (extension == ".elf")
     {
+        NOTICE_LOG(BOOT, "GenerateFromFile make_unique elf");
       auto elf_reader = std::make_unique<ElfReader>(path);
       return std::make_unique<BootParameters>(Executable{std::move(path), std::move(elf_reader)},
                                               savestate_path);
@@ -191,6 +200,7 @@ BootParameters::GenerateFromFile(std::vector<std::string> paths,
 
     if (extension == ".dol")
     {
+        NOTICE_LOG(BOOT, "GenerateFromFile make_unique dol");
       auto dol_reader = std::make_unique<DolReader>(path);
       return std::make_unique<BootParameters>(Executable{std::move(path), std::move(dol_reader)},
                                               savestate_path);
