@@ -176,8 +176,6 @@ BootParameters::GenerateFromFile(std::vector<std::string> paths,
   if (paths.size() == 1)
     paths.clear();
 
-  NOTICE_LOG(BOOT, "GenerateFromFile after read m3u");
-
   static const std::unordered_set<std::string> disc_image_extensions = {
       {".gcm", ".iso", ".tgc", ".wbfs", ".ciso", ".gcz", ".wia", ".rvz", ".dol", ".elf"}};
   if (disc_image_extensions.find(extension) != disc_image_extensions.end() || is_drive)
@@ -208,7 +206,7 @@ BootParameters::GenerateFromFile(std::vector<std::string> paths,
 
     if (is_drive)
     {
-      PanicAlertT("Could not read \"%s\". "
+        NOTICE_LOG(BOOT,"Could not read \"%s\". "
                   "There is no disc in the drive or it is not a GameCube/Wii backup. "
                   "Please note that Dolphin cannot play games directly from the original "
                   "GameCube and Wii discs.",
@@ -216,20 +214,24 @@ BootParameters::GenerateFromFile(std::vector<std::string> paths,
     }
     else
     {
-      PanicAlertT("\"%s\" is an invalid GCM/ISO file, or is not a GC/Wii ISO.", path.c_str());
+        NOTICE_LOG(BOOT, "\"%s\" is an invalid GCM/ISO file, or is not a GC/Wii ISO.", path.c_str());
     }
     return {};
   }
 
+  NOTICE_LOG(BOOT, "disc did not match extension");
+
   if (extension == ".dff")
     return std::make_unique<BootParameters>(DFF{std::move(path)}, savestate_path);
 
+    NOTICE_LOG(BOOT, "extension is not dff");
   if (extension == ".wad")
   {
     std::unique_ptr<DiscIO::VolumeWAD> wad = DiscIO::CreateWAD(std::move(path));
     if (wad)
       return std::make_unique<BootParameters>(std::move(*wad), savestate_path);
   }
+  NOTICE_LOG(BOOT, "extension is not wad, could not recognize file %s", path.c_str());
 
   PanicAlertT("Could not recognize file %s", path.c_str());
   return {};
